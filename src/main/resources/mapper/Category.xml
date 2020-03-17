@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.CategoryMapper">
+		<resultMap type="Category" id="CategoryResultMap">
+			<result column="cid" property="id"/>
+			<result column="cname" property="name"/>
+			<collection property="products" ofType="Product">
+				<result column="pid" property="id"/>
+				<result column="pname" property="name"/>
+				<result column="subTitle" property="subTitle"/>
+				<result column="originalPrice" property="originalPrice"/>
+				<result column="promotePrice" property="promotePrice"/>
+				<result column="stock" property="stock"/>
+				<result column="createDate" property="createDate"/>
+				<collection property="productSingleImages" ofType="ProductImage">
+					<result column="piid" property="id"/>
+					<result column="type" property="type"/>
+				</collection>
+			</collection>
+		</resultMap>
+		<insert id="add" parameterType="Category" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO category VALUES(null,#{name});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM category WHERE id = #{id};
+		</delete>
+		<update id="update" parameterType="Category">
+			UPDATE category SET name = #{name} WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultMap="CategoryResultMap">
+			SELECT *,c.id 'cid',c.name 'cname',p.id 'pid',p.name 'pname',pi.id 'piid' FROM category c LEFT JOIN product p ON c.id = p.cid
+			LEFT JOIN productImage pi ON p.id = pi.pid
+			WHERE c.id = #{id} AND pi.type = 'type_single'
+		</select>
+		<select id="getPure" parameterType="_int" resultType="Category">
+			SELECT * FROM category
+			WHERE id = #{id}
+		</select>
+		<select id="list" resultMap="CategoryResultMap">
+			SELECT *,c.id 'cid',c.name 'cname',p.id 'pid',p.name 'pname',pi.id 'piid' FROM category c LEFT JOIN product p ON c.id = p.cid
+			LEFT JOIN productImage pi ON p.id = pi.pid
+			WHERE pi.type = 'type_single'
+		</select>
+		<select id="listPure" resultType="Category">
+			SELECT * FROM category
+			<if test="start!=null">
+				LIMIT #{start},#{count}
+			</if>
+		</select>
+		<select id="getTotal" resultType="_int">
+			SELECT COUNT(*) FROM category
+		</select>
+		<select id="getChildCount" resultType="int" parameterType="_int">
+			SELECT COUNT(*) FROM product
+			WHERE cid = #{id} 
+		</select>
+	</mapper>

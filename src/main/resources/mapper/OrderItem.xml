@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.OrderItemMapper">
+		<resultMap type="OrderItem" id="OrderItemResultMap">
+			<result column="oiid" property="id"/>
+			<result column="oid" property="oid"/>
+			<result column="uid" property="uid"/>
+			<result column="number" property="number"/>
+			<association property="product" javaType="Product">
+				<result column="pid" property="id"/>
+				<result column="name" property="name"/>
+				<result column="subTitle" property="subTitle"/>
+				<result column="originalPrice" property="originalPrice"/>
+				<result column="promotePrice" property="promotePrice"/>
+				<result column="stock" property="stock"/>
+				<result column="createDate" property="createDate"/>
+			</association>
+		</resultMap>
+		<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="OrderItem">
+			INSERT INTO orderitem(id,pid,oid,uid,number) VALUES(null,#{pid},#{oid},#{uid},#{number})
+		</insert> 
+		<delete id="delete" parameterType="_int">
+			DELETE FROM orderitem WHERE id = #{id}
+		</delete>
+		<update id="update" parameterType="OrderItem"> 
+			UPDATE orderitem SET pid = #{product.id},oid = #{oid},uid = #{uid},number = #{number} WHERE id = #{id}
+		</update>
+		<update id="addOrder" parameterType="OrderItem"> 
+			UPDATE orderitem SET oid = #{oid} WHERE id = #{id}
+		</update>
+		<select id="get" parameterType="_int" resultMap="OrderItemResultMap">
+			SELECT *,oi.id 'oiid' FROM orderitem oi LEFT JOIN product p ON oi.pid = p.id WHERE oi.id = #{id}
+		</select>
+		<select id="listByUser" parameterType="User" resultMap="OrderItemResultMap">
+			SELECT *,oi.id 'oiid' FROM orderitem oi LEFT JOIN product p ON oi.pid = p.id WHERE oi.uid = #{id} AND oi.oid = 0
+		</select>
+		<select id="getCartNumber" parameterType="User" resultType="int">
+			SELECT COUNT(*) FROM orderitem WHERE uid = #{id} AND oid = 0
+		</select>
+		<select id="getSaleByProduct" parameterType="Product" resultType="_int">
+			SELECT SUM(number) FROM orderitem WHERE pid = #{id}
+		</select>
+	</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.PropertyValueMapper">
+		<resultMap type="PropertyValue" id="PropertyValueResultMap">
+			<result column="pvid" property="id"/>
+			<result column="pid" property="pid"/>
+			<result column="value" property="value"/>
+			<association property="property" javaType="Property">
+				<result column="ptid" property="id"/>
+				<result column="name" property="name"/>
+				<result column="cid" property="cid"/>
+			</association>
+		</resultMap>
+		<insert id="add" parameterType="PropertyValue" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO propertyValue(id,pid,ptid,value) VALUES(null,#{pid},#{property.id},#{value});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM propertyValue WHERE id = #{id};
+		</delete>
+		<delete id="deleteByPid" parameterType="_int">
+			DELETE FROM propertyValue WHERE pid = #{pid};
+		</delete>
+		<update id="update" parameterType="PropertyValue">
+			UPDATE propertyValue SET value = #{value} WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultType="PropertyValue">
+			SELECT * FROM propertyValue WHERE id = #{id};
+		</select>
+		<select id="list" resultMap="PropertyValueResultMap" parameterType="_int">
+			SELECT *,pv.id 'pvid',pt.id 'ptid' FROM propertyvalue pv LEFT JOIN property pt ON pv.ptid=pt.id WHERE pid = #{pid}
+			ORDER BY pv.ptid ASC
+		</select>
+	</mapper>

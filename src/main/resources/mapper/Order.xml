@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.OrderMapper">
+		<resultMap type="Order" id="OrderResultMap">
+			<result column="oid" property="id"/>
+			<result column="orderCode" property="orderCode"/>
+			<result column="address" property="address"/>
+			<result column="post" property="post"/>
+			<result column="receiver" property="receiver"/>
+			<result column="mobile" property="mobile"/>
+			<result column="userMessage" property="userMessage"/>
+			<result column="createDate" property="createDate"/>
+			<result column="payDate" property="payDate"/>
+			<result column="deliveryDate" property="deliveryDate"/>
+			<result column="confirmDate" property="confirmDate"/>
+			<result column="status" property="status"/>
+			<association property="user" javaType="User">
+				<result column="uid" property="id"/>
+				<result column="uname" property="name"/>
+				<result column="password" property="password"/>
+			</association>
+		</resultMap>
+		<!-- 多对多 -->
+		<resultMap type="Order" id="OrderResultMapManyToMany">
+			<result column="oid" property="id"/>
+			<result column="orderCode" property="orderCode"/>
+			<result column="address" property="address"/>
+			<result column="post" property="post"/>
+			<result column="receiver" property="receiver"/>
+			<result column="mobile" property="mobile"/>
+			<result column="userMessage" property="userMessage"/>
+			<result column="ocreateDate" property="createDate"/>
+			<result column="payDate" property="payDate"/>
+			<result column="deliveryDate" property="deliveryDate"/>
+			<result column="confirmDate" property="confirmDate"/>
+			<result column="status" property="status"/>
+			<association property="user" javaType="User">
+				<result column="uid" property="id"/>
+				<result column="uname" property="name"/>
+			</association>
+			<collection property="orderItems" ofType="OrderItem">
+				<result column="oiid" property="id"/>
+				<result column="oid" property="oid"/>
+				<result column="number" property="number"/>
+				<association property="product" javaType="Product">
+					<result column="pid" property="id"/>
+					<result column="pname" property="name"/>
+					<result column="subTitle" property="subTitle"/>
+					<result column="originalPrice" property="originalPrice"/>
+					<result column="promotePrice" property="promotePrice"/>
+					<result column="stock" property="stock"/>
+					<result column="pcreateDate" property="createDate"/>
+					<collection property="productSingleImages" ofType="ProductImage">
+						<result column="piid" property="id"/>
+						<result column="pipid" property="pid"/>
+						<result column="type" property="type"/>
+					</collection>
+				</association>
+			</collection>
+		</resultMap>
+		<insert id="add" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO order_(id,orderCode,address,post,receiver,mobile,userMessage,createDate,payDate,deliveryDate,confirmDate,uid,status)
+			VALUES(null,#{orderCode},#{address},#{post},#{receiver},#{mobile},#{userMessage},#{createDate},#{payDate},#{deliveryDate},#{confirmDate},#{user.id},#{status});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM order_ WHERE id = #{id};
+		</delete>
+		<update id="update" parameterType="Order">
+			UPDATE order_ SET address = #{address},post = #{post},receiver = #{receiver},mobile = #{mobile},
+			userMessage = #{userMessage},payDate = #{payDate},deliveryDate = #{deliveryDate},
+			confirmDate = #{confirmDate},status = #{status}
+			WHERE id = #{id};
+		</update>
+		<update id="updateStatus" parameterType="Order">
+			UPDATE order_ SET status = #{status}
+			<choose>
+				<when test="status==waitDelivery"><!-- 状态为待发货，更新付款时间 -->
+					,payDate = #{payDate}
+				</when>
+				<when test="status==waitConfirm"><!-- 状态为待收货，更新发货时间 -->
+					,deliveryDate = #{deliveryDate}
+				</when>
+				<when test="status==waitReview"><!-- 状态为待评价，更新收货时间 -->
+					,confirmDate = #{confirmDate}
+				</when>
+			</choose>
+			WHERE id = #{id}
+		</update>
+		<select id="get" parameterType="_int" resultMap="OrderResultMapManyToMany">
+			SELECT *,o.id 'oid',oi.id 'oiid',p.id 'pid',o.createDate 'ocreateDate',p.createDate 'pcreateDate',pi.id 'piid',pi.pid 'pipid',p.name 'pname'
+			FROM order_ o 
+			LEFT JOIN orderitem oi ON oi.oid = o.id 
+			LEFT JOIN product p ON oi.pid = p.id 
+			LEFT JOIN productimage pi ON pi.pid = p.id 
+			WHERE o.id = #{id}
+		</select>
+		<select id="list" resultMap="OrderResultMapManyToMany">
+			SELECT *,o.id 'oid',oi.id 'oiid',p.id 'pid',o.createDate 'ocreateDate',p.createDate 'pcreateDate',pi.id 'piid',pi.pid 'pipid',u.id 'uid',u.name 'uname',p.name 'pname'
+			FROM order_ o 
+			LEFT JOIN orderitem oi ON oi.oid = o.id 
+			LEFT JOIN user u ON u.id = o.uid
+			LEFT JOIN product p ON oi.pid = p.id 
+			LEFT JOIN productimage pi ON pi.pid = p.id 
+			WHERE o.id IN(SELECT temp.id FROM (SELECT id FROM order_ LIMIT #{start},#{count}) as temp)
+		</select>
+		<select id="listByUser" resultMap="OrderResultMapManyToMany" parameterType="User">
+			SELECT *,o.id 'oid',oi.id 'oiid',p.id 'pid',o.createDate 'ocreateDate',p.createDate 'pcreateDate',pi.id 'piid',pi.pid 'pipid',p.name 'pname'
+			FROM order_ o LEFT JOIN orderitem oi ON oi.oid = o.id 
+			LEFT JOIN product p ON oi.pid = p.id 
+			LEFT JOIN productimage pi ON pi.pid = p.id 
+			WHERE o.uid = #{id} AND o.status != 'delete'
+		</select>
+		<select id="getTotal" resultType="int">
+			SELECT COUNT(*) FROM order_;
+		</select>
+	</mapper>

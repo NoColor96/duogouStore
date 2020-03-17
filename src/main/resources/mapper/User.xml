@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.UserMapper">
+		<insert id="add" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO user(id,name,password) VALUES(null,#{name},#{password});
+		</insert>
+		<delete id="delete" parameterType="_int"> 
+			DELETE FROM user WHERE id = #{id};
+		</delete>
+		<update id="update" parameterType="User">
+			UPDATE user SET name = #{name},password = #{password} WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultType="User">
+			SELECT * FROM user WHERE id = #{id};
+		</select>
+		<select id="list" resultType="User">
+			SELECT * FROM user
+			<if test="start!=null">
+				LIMIT #{start},#{count}
+			</if>
+		</select>
+		<select id="getTotal" resultType="int">
+			SELECT COUNT(*) FROM user
+		</select>
+		<select id="checkUser" parameterType="User" resultType="User">
+			SELECT * FROM user WHERE name = #{name} AND password = #{password}
+		</select>
+		
+		<select id="existUserName" parameterType="String" resultType="_int">
+			SELECT COUNT(*) FROM user WHERE name = #{userName}
+		</select>
+		
+		<select id="getPureUserById" parameterType="_int" resultType="User">
+			SELECT id,name FROM user WHERE id = #{id};
+		</select>
+	</mapper>

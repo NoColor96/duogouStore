@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+	<mapper namespace="com.hixqz.store.mapper.ProductMapper">
+		<resultMap id="ProductResultMap" type="Product">
+			<result column="pid" property="id"/>
+			<result column="pname" property="name"/>
+			<result column="subTitle" property="subTitle"/>
+			<result column="originalPrice" property="originalPrice"/>
+			<result column="promotePrice" property="promotePrice"/>
+			<result column="stock" property="stock"/>
+			<result column="createDate" property="createDate"/>
+			<association property="category" javaType="Category">
+				<result column="cid" property="id"/>
+				<result column="cname" property="name"/>
+			</association>
+		</resultMap>
+		<insert id="add" parameterType="Product">
+			INSERT INTO product VALUES(null,#{name},#{subTitle},#{originalPrice},#{promotePrice},#{stock},#{category.id},#{createDate});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM product WHERE id = #{id};
+		</delete>
+		<update id="update" parameterType="Product">
+			UPDATE product SET name = #{name},subTitle = #{subTitle},originalPrice = #{originalPrice},promotePrice = #{promotePrice},stock = #{stock} 
+			WHERE id = #{id};
+		</update>
+		<update id="sysStock" parameterType="Product">
+			UPDATE product SET stock = #{stock} 
+			WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultMap="ProductResultMap">
+			SELECT *,c.id 'cid',c.name 'cname',p.id 'pid',p.name 'pname' FROM category c LEFT JOIN product p ON c.id = p.cid
+			WHERE p.id = #{id}
+		</select>
+		<select id="list" resultMap="ProductResultMap">
+			SELECT *,c.id 'cid',c.name 'cname',p.id 'pid',p.name 'pname' FROM category c LEFT JOIN product p ON c.id = p.cid
+			<if test="cid!=null">
+				<where>
+					cid = #{cid}
+				</where>
+			</if>
+			<if test="page.start!=null">
+				LIMIT #{page.start},#{page.count}
+			</if>
+		</select>
+		<select id="search" resultType="Product" parameterType="String">
+			SELECT * FROM product
+			WHERE name LIKE concat('%',#{name},'%')
+		</select>
+		<select id="getTotal" parameterType="_int" resultType="int">
+			SELECT COUNT(*) FROM product WHERE cid = #{cid}
+		</select>
+	</mapper>

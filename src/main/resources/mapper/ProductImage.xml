@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybaits-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.ProductImageMapper">
+		<resultMap id="ProductImageResultMap" type="ProductImage">
+			<result column="piid" property="id"/>
+			<result column="type" property="type"/>
+			<association property="product" javaType="Product">
+				<result column="pid" property="id"/>
+				<result column="name" property="name"/>
+			</association>
+		</resultMap>
+		<insert id="add" parameterType="ProductImage" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO productImage(id,pid,type) VALUES(null,#{product.id},#{type});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM productImage WHERE id = #{id};
+		</delete>
+		<delete id="deleteByPid" parameterType="_int">
+			DELETE FROM productImage WHERE pid = #{pid};
+		</delete>
+		<update id="update" parameterType="ProductImage">
+			UPDATE productImage SET pid = #{product.id},type = #{type} WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultType="ProductImage">
+			SELECT * FROM productImage WHERE id = #{id};
+		</select>
+<!-- 		<select id="listBySingle" resultMap="ProductImageResultMap" parameterType="int">
+			SELECT * FROM productImage pi LEFT JOIN product p ON pi.pid = p.id WHERE pid = #{pid};
+		</select> -->
+		
+		<select id="getByCondition" resultType="ProductImage" parameterType="Map">
+			SELECT * FROM productImage WHERE pid = #{pid} AND type = #{type};
+		</select>
+	</mapper>

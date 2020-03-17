@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hixqz.store.mapper.PropertyMapper">
+		<resultMap type="Property" id="PropertyResultMap">
+			<result column="pid" property="id"/>
+			<result column="pname" property="name"/>
+			<association property="category" javaType="Category">
+				<result column="cid" property="id"/>
+				<result column="cname" property="name"/>
+			</association>
+		</resultMap> 
+		<insert id="add" parameterType="Property">
+			INSERT INTO property(id,cid,name) VALUES(null,#{cid},#{name});
+		</insert>
+		<delete id="delete" parameterType="_int">
+			DELETE FROM property WHERE id = #{id};
+		</delete>
+		<delete id="deleteByCid" parameterType="_int">
+			DELETE FROM property WHERE cid = #{cid};
+		</delete>
+		<update id="update" parameterType="Property">
+			UPDATE property SET name = #{name},cid = #{cid} WHERE id = #{id};
+		</update>
+		<select id="get" parameterType="_int" resultMap="PropertyResultMap">
+			SELECT p.id 'pid',p.name 'pname',c.id 'cid',c.name 'cname' FROM property p 
+			LEFT JOIN category c ON p.cid = c.id 
+			WHERE p.id = #{id}
+		</select>
+		<select id="listByPage" resultMap="PropertyResultMap">
+			SELECT p.id 'pid',p.name 'pname',c.id 'cid',c.name 'cname' FROM property p 
+			LEFT JOIN category c ON p.cid = c.id 
+			WHERE cid = #{cid}
+			LIMIT #{page.start},#{page.count}
+		</select>
+		<select id="list" resultMap="PropertyResultMap">
+			SELECT p.id 'pid',p.name 'pname',c.id 'cid',c.name 'cname' FROM property p 
+			LEFT JOIN category c ON p.cid = c.id 
+			WHERE cid = #{cid}
+		</select>
+		<select id="getTotal" resultType="_int" parameterType="_int">
+			SELECT COUNT(*) FROM property WHERE cid = #{cid};
+		</select>
+	</mapper>
