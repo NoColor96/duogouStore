@@ -17,4 +17,5 @@ public interface OrderMapper {
 	List<Order> listByUser(User user);
 	void updateStatus(Order order);
 	int getTotal();
+	Order getReceiverByUser(User user);
 }

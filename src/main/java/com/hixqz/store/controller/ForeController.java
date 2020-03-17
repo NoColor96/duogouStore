@@ -169,6 +169,12 @@ public class ForeController extends BaseForeController{
 			orderItems.add(orderItem);
 		}	
 		String total = (String) orderItemService.getTotal(orderItems).get("total");//¶©µ¥×Ü¼Û
+		User user = (User) session.getAttribute("user");
+		System.out.println(user.getName());
+		Order receiverByUser = orderService.getReceiverByUser(user);
+		if(receiverByUser != null) {
+			session.setAttribute("receiver", receiverByUser);
+		}
 		session.setAttribute("ois", orderItems);
 		session.setAttribute("total", total);
 		return "buy";

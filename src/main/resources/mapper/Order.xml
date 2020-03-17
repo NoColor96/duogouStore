@@ -115,4 +115,7 @@
 		<select id="getTotal" resultType="int">
 			SELECT COUNT(*) FROM order_;
 		</select>
+		<select id="getReceiverByUser" resultType="Order" parameterType="User">
+			SELECT address,post,receiver,mobile FROM order_ WHERE id = (SELECT MAX(id) FROM order_ WHERE uid = #{id})
+		</select>
 	</mapper>

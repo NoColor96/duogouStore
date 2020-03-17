@@ -16,4 +16,5 @@ public interface OrderService {
 	List<Order> listByUser(User user);
 	void updateStatus(Order order);
 	String createOrderCode();
+	Order getReceiverByUser(User user);
 }

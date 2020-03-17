@@ -10,6 +10,11 @@ html{
 	width: 1024px;
 	margin: auto;
 }
+.useHistoryRecBtn{
+	background:#fb9b34;
+	border-color:#fb9b34;
+	margin:10px 0px;
+}
 nav.top {
 	width: 100%;
 	background: #fafafa;

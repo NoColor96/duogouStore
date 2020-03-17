@@ -120,4 +120,10 @@ public class OrderServiceImpl implements OrderService{
 		Collections.reverse(orders);
 		return orders;
 	}
+
+	@Override
+	public Order getReceiverByUser(User user) {
+		// TODO Auto-generated method stub
+		return orderMapper.getReceiverByUser(user);
+	}
 }

@@ -39,8 +39,16 @@
 								手机号码只能为11位数字
 						</td>
 					</tr>
+					<c:if test="${!empty receiver}">
+						<tr>
+							<td colspan="2">
+								<button class="useHistoryRecBtn" onclick="useHistoryReceiver(); return false;">使用上次下单地址</button>
+							</td>
+						</tr>
+					</c:if>
 				</table>
 			</div>
+			
 		</div>
 	<div class="productList">
 		<div class="productListTip">确认订单信息</div>
@@ -155,9 +163,11 @@
 	}
 	$(".submitOrderButton").click(function(){
 		let inputs = $(".addressTable :input");
+		console.log(inputs);
 		let isNull = false;
 		for(let i = 0;i < inputs.length;i++){
 			if(!inputs[i].value && inputs[i].getAttribute("name") != "post"){
+				if(inputs[i].className=='useHistoryRecBtn') continue;
 				isNull = true;
 				break;
 			}
@@ -168,4 +178,11 @@
 		}
 		return true;
 	});
+	function useHistoryReceiver(){
+	 	$("textarea[name='address']").val("${sessionScope.receiver.address}");
+	 	$("input[name='post']").val("${sessionScope.receiver.post}");
+	 	$("input[name='post']").val("${sessionScope.receiver.post}");
+	 	$("input[name='receiver']").val("${sessionScope.receiver.receiver}");
+	 	$("input[name='mobile']").val("${sessionScope.receiver.mobile}");
+	}
 </script>
